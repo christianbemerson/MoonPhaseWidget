@@ -1,10 +1,9 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: light-gray; icon-glyph: microchip;
-
-let bgImage = await getImage(
-  "https://p.kindpng.com/picc/s/52-526434_rectangle-border-png-ionic-blank-transparent-png.png"
-);
+let baseUrl =
+  "https://raw.githubusercontent.com/christianbemerson/MoonPhaseWidget/master";
+let bgImage = await getImage(baseUrl + "/imgs/background.jpg");
 let widget = await createWidget();
 
 // Check if the script is running in
@@ -19,8 +18,6 @@ Script.setWidget(widget);
 Script.complete();
 
 function buildInterface() {
-  // Original Snippet: https://gist.github.com/endel/dfe6bb2fbe679781948c
-
   var Moon = {
     phases: [
       "new-moon",
@@ -33,14 +30,14 @@ function buildInterface() {
       "waning-crescent-moon",
     ],
     phaseImgs: [
-      "new-moon.jpg",
-      "waxing-crescent-moon.jpg",
-      "quarter-moon.jpg",
-      "waxing-gibbous-moon.jpg",
-      "full-moon.jpg",
-      "waning-gibbous-moon.jpg",
-      "last-quarter-moon.jpg",
-      "waning-crescent-moon.jpg",
+      "/imgs/new-moon.jpg",
+      "/imgs/waxing-crescent-moon.jpg",
+      "/imgs/quarter-moon.jpg",
+      "/imgs/waxing-gibbous-moon.jpg",
+      "/imgs/full-moon.jpg",
+      "/imgs/waning-gibbous-moon.jpg",
+      "/imgs/last-quarter-moon.jpg",
+      "/imgs/waning-crescent-moon.jpg",
     ],
     phase: function (year, month, day) {
       let c = (e = jd = b = 0);
@@ -49,17 +46,15 @@ function buildInterface() {
         year--;
         month += 12;
       }
-
       ++month;
       c = 365.25 * year;
       e = 30.6 * month;
-      jd = c + e + day - 694039.09; // jd is total days elapsed
-      jd /= 29.5305882; // divide by the moon cycle
-      b = parseInt(jd); // int(jd) -> b, take integer part of jd
-      jd -= b; // subtract integer part to leave fractional part of original jd
-      b = Math.round(jd * 8); // scale fraction from 0-8 and round
-
-      if (b >= 8) b = 0; // 0 and 8 are the same so turn 8 into 0
+      jd = c + e + day - 694039.09;
+      jd /= 29.5305882;
+      b = parseInt(jd);
+      jd -= b;
+      b = Math.round(jd * 8);
+      if (b >= 8) b = 0;
       return { phase: b, name: Moon.phases[b], image: phaseImgs[b] };
     },
   };
@@ -87,8 +82,9 @@ function buildInterface() {
     day: today.getDate(),
   };
   let moon = Moon.phase(date.year, date.month, date.day);
-  context.drawText(moon.phase, new Point(692, 43));
+  context.drawText("Current Moon Phase:", new Point(692, 43));
   context.drawText(moon.name, new Point(692, 91));
+  //context.drawImageInRect(baseUrl + moon.image, new Point(680, 43));
 
   let img = context.getImage();
   return img;
