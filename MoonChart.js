@@ -42,7 +42,7 @@ async function buildInterface() {
   context.drawText(moon.name, new Point(500, 90));
   let moonImg = await getImage(baseUrl + moon.image);
   if (moonImg != null) {
-    context.drawImageInRect(moonImg, new Rect(150, 45, 100, 100));
+    context.drawImageInRect(moonImg, new Rect(150, 150, 200, 200));
   }
   let img = context.getImage();
   return img;
@@ -93,7 +93,7 @@ async function getWeather() {
   var location = await Location.current();
   var lat = location.latitude;
   var lon = location.longitude;
-  var API_KEY = "place your api key here";
+  var API_KEY = "place api key here";
   var weatherData = await new Request(
     "https://api.openweathermap.org/data/2.5/weather?lat=" +
       lat +
