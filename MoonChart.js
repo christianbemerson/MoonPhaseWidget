@@ -17,7 +17,7 @@ if (!config.runsInWidget) {
 Script.setWidget(widget);
 Script.complete();
 
-function buildInterface() {
+async function buildInterface() {
   var Moon = {
     phases: [
       "new-moon",
@@ -58,6 +58,8 @@ function buildInterface() {
       return { phase: b, name: Moon.phases[b], image: Moon.phaseImgs[b] };
     },
   };
+  var weatherData = await getWeather();
+  bgImage = await getImage(baseUrl + "/imgs/" + weatherData + ".png");
   let bg = bgImage;
   let context = new DrawContext();
 
@@ -70,10 +72,7 @@ function buildInterface() {
   if (bg != null) {
     context.drawImageInRect(bg, rec);
   }
-
-  let charcoal = new Font("Charcoal", 32);
-  context.setFont(charcoal);
-  context.setTextColor(Color.black());
+  context.setTextColor(Color.white());
   context.setTextAlignedLeft();
   context.setFontSize(50);
   let today = new Date();
@@ -83,12 +82,30 @@ function buildInterface() {
     day: today.getDate(),
   };
   let moon = Moon.phase(date.year, date.month, date.day);
-  context.drawText("Current Moon Phase:", new Point(692, 43));
-  context.drawText(moon.name, new Point(650, 90));
-  context.drawImageInRect(baseUrl + moon.image, new Point(150, 43));
-
+  context.drawText("Current Moon Phase:", new Point(500, 43));
+  context.drawText(moon.name, new Point(500, 90));
+  let moonImg = await getImage(baseUrl + moon.image);
+  if (moonImg != null) {
+    context.drawImageInRect(moonImg, new Rect(150, 45, 100, 100));
+  }
   let img = context.getImage();
   return img;
+}
+
+async function getWeather() {
+  var location = await Location.current();
+  var lat = location.latitude;
+  var lon = location.longitude;
+  var API_KEY = "put your api key here";
+  var weatherData = await new Request(
+    "https://api.openweathermap.org/data/2.5/weather?lat=" +
+      lat +
+      "&lon=" +
+      lon +
+      "&units=imperial&lang=EN&appid=" +
+      API_KEY
+  ).loadJSON();
+  return weatherData.weather[0].main;
 }
 
 async function getImage(url) {
@@ -97,7 +114,7 @@ async function getImage(url) {
 }
 
 async function createWidget() {
-  let bg = buildInterface();
+  let bg = await buildInterface();
   let w = new ListWidget();
 
   if (bg != null) {
