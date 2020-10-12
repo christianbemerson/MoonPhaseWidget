@@ -37,9 +37,20 @@ async function buildInterface() {
     month: today.getMonth() + 1,
     day: today.getDate(),
   };
+  var nextFull = getNextFullMoon(date.year, date.month, date.day);
   let moon = buildMoon(date.year, date.month, date.day);
-  context.drawText("Current Moon Phase:", new Point(500, 43));
-  context.drawText(moon.name, new Point(500, 90));
+  context.drawText("Current Moon Phase:", new Point(420, 150));
+  context.drawText(moon.name, new Point(420, 200));
+  if (nextFull != 0) {
+    context.drawText(
+      "Next Full Moon in: " + nextFull + " day(s)",
+      new Point(420, 250)
+    );
+    context.drawText("Visibility is: " + weatherData, new Point(420, 300));
+  } else {
+    context.drawText("Today is the full moon!", new Point(420, 250));
+    context.drawText("Visibility is: " + weatherData, new Point(420, 300));
+  }
   let moonImg = await getImage(baseUrl + moon.image);
   if (moonImg != null) {
     context.drawImageInRect(moonImg, new Rect(150, 150, 200, 200));
@@ -61,18 +72,17 @@ function buildMoon(year, month, day) {
       "waning-crescent-moon",
     ],
     phaseImgs: [
-      "/imgs/new-moon.jpg",
-      "/imgs/waxing-crescent-moon.jpg",
-      "/imgs/quarter-moon.jpg",
-      "/imgs/waxing-gibbous-moon.jpg",
-      "/imgs/full-moon.jpg",
-      "/imgs/waning-gibbous-moon.jpg",
-      "/imgs/last-quarter-moon.jpg",
+      "/imgs/new-moon.png",
+      "/imgs/waxing-crescent-moon.png",
+      "/imgs/quarter-moon.png",
+      "/imgs/waxing-gibbous-moon.png",
+      "/imgs/full-moon.png",
+      "/imgs/waning-gibbous-moon.png",
+      "/imgs/last-quarter-moon.png",
       "/imgs/waning-crescent-moon.png",
     ],
   };
   var c = (e = jd = b = 0);
-  console.log(Moon.phases[0]);
   if (month < 3) {
     year--;
     month += 12;
@@ -86,14 +96,27 @@ function buildMoon(year, month, day) {
   jd -= b;
   b = Math.round(jd * 8);
   if (b >= 8) b = 0;
-  return { phase: b, name: Moon.phases[b], image: Moon.phaseImgs[b] };
+  return { name: Moon.phases[b], image: Moon.phaseImgs[b] };
+}
+
+function getNextFullMoon(year, month, day) {
+  var currentDate = new Date(year, month, day);
+  var blueMoonDate = new Date(96, 1, 3, 16, 15, 0);
+  var lunarPeriod =
+    29 * (24 * 3600 * 1000) + 12 * (3600 * 1000) + 44.05 * (60 * 1000);
+  var moonPhaseTime =
+    (currentDate.getTime() - blueMoonDate.getTime()) % lunarPeriod;
+  var nextMoonDate = Math.round(
+    (lunarPeriod - moonPhaseTime) / (24 * 3600 * 1000)
+  );
+  return nextMoonDate;
 }
 
 async function getWeather() {
   var location = await Location.current();
   var lat = location.latitude;
   var lon = location.longitude;
-  var API_KEY = "place api key here";
+  var API_KEY = "place your api key here";
   var weatherData = await new Request(
     "https://api.openweathermap.org/data/2.5/weather?lat=" +
       lat +
