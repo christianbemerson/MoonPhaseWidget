@@ -37,7 +37,7 @@ function buildInterface() {
       "/imgs/full-moon.jpg",
       "/imgs/waning-gibbous-moon.jpg",
       "/imgs/last-quarter-moon.jpg",
-      "/imgs/waning-crescent-moon.jpg",
+      "/imgs/waning-crescent-moon.png",
     ],
     phase: function (year, month, day) {
       let c = (e = jd = b = 0);
@@ -55,7 +55,7 @@ function buildInterface() {
       jd -= b;
       b = Math.round(jd * 8);
       if (b >= 8) b = 0;
-      return { phase: b, name: Moon.phases[b], image: phaseImgs[b] };
+      return { phase: b, name: Moon.phases[b], image: Moon.phaseImgs[b] };
     },
   };
   let bg = bgImage;
@@ -75,6 +75,7 @@ function buildInterface() {
   context.setFont(charcoal);
   context.setTextColor(Color.black());
   context.setTextAlignedLeft();
+  context.setFontSize(50);
   let today = new Date();
   let date = {
     year: today.getFullYear(),
@@ -83,8 +84,8 @@ function buildInterface() {
   };
   let moon = Moon.phase(date.year, date.month, date.day);
   context.drawText("Current Moon Phase:", new Point(692, 43));
-  context.drawText(moon.name, new Point(692, 91));
-  //context.drawImageInRect(baseUrl + moon.image, new Point(680, 43));
+  context.drawText(moon.name, new Point(650, 90));
+  context.drawImageInRect(baseUrl + moon.image, new Point(150, 43));
 
   let img = context.getImage();
   return img;
