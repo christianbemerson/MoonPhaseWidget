@@ -6,58 +6,14 @@ let baseUrl =
 let bgImage = await getImage(baseUrl + "/imgs/background.jpg");
 let widget = await createWidget();
 
-// Check if the script is running in
-// a widget. If not, show a preview of
-// the widget to easier debug it.
 if (!config.runsInWidget) {
   await widget.presentMedium();
 }
 
-// Tell the system to show the widget.
 Script.setWidget(widget);
 Script.complete();
 
 async function buildInterface() {
-  var Moon = {
-    phases: [
-      "new-moon",
-      "waxing-crescent-moon",
-      "quarter-moon",
-      "waxing-gibbous-moon",
-      "full-moon",
-      "waning-gibbous-moon",
-      "last-quarter-moon",
-      "waning-crescent-moon",
-    ],
-    phaseImgs: [
-      "/imgs/new-moon.jpg",
-      "/imgs/waxing-crescent-moon.jpg",
-      "/imgs/quarter-moon.jpg",
-      "/imgs/waxing-gibbous-moon.jpg",
-      "/imgs/full-moon.jpg",
-      "/imgs/waning-gibbous-moon.jpg",
-      "/imgs/last-quarter-moon.jpg",
-      "/imgs/waning-crescent-moon.png",
-    ],
-    phase: function (year, month, day) {
-      let c = (e = jd = b = 0);
-
-      if (month < 3) {
-        year--;
-        month += 12;
-      }
-      ++month;
-      c = 365.25 * year;
-      e = 30.6 * month;
-      jd = c + e + day - 694039.09;
-      jd /= 29.5305882;
-      b = parseInt(jd);
-      jd -= b;
-      b = Math.round(jd * 8);
-      if (b >= 8) b = 0;
-      return { phase: b, name: Moon.phases[b], image: Moon.phaseImgs[b] };
-    },
-  };
   var weatherData = await getWeather();
   bgImage = await getImage(baseUrl + "/imgs/" + weatherData + ".png");
   let bg = bgImage;
@@ -81,7 +37,7 @@ async function buildInterface() {
     month: today.getMonth() + 1,
     day: today.getDate(),
   };
-  let moon = Moon.phase(date.year, date.month, date.day);
+  let moon = buildMoon(date.year, date.month, date.day);
   context.drawText("Current Moon Phase:", new Point(500, 43));
   context.drawText(moon.name, new Point(500, 90));
   let moonImg = await getImage(baseUrl + moon.image);
@@ -92,11 +48,52 @@ async function buildInterface() {
   return img;
 }
 
+function buildMoon(year, month, day) {
+  var Moon = {
+    phases: [
+      "new-moon",
+      "waxing-crescent-moon",
+      "quarter-moon",
+      "waxing-gibbous-moon",
+      "full-moon",
+      "waning-gibbous-moon",
+      "last-quarter-moon",
+      "waning-crescent-moon",
+    ],
+    phaseImgs: [
+      "/imgs/new-moon.jpg",
+      "/imgs/waxing-crescent-moon.jpg",
+      "/imgs/quarter-moon.jpg",
+      "/imgs/waxing-gibbous-moon.jpg",
+      "/imgs/full-moon.jpg",
+      "/imgs/waning-gibbous-moon.jpg",
+      "/imgs/last-quarter-moon.jpg",
+      "/imgs/waning-crescent-moon.png",
+    ],
+  };
+  var c = (e = jd = b = 0);
+  console.log(Moon.phases[0]);
+  if (month < 3) {
+    year--;
+    month += 12;
+  }
+  ++month;
+  c = 365.25 * year;
+  e = 30.6 * month;
+  jd = c + e + day - 694039.09;
+  jd /= 29.5305882;
+  b = parseInt(jd);
+  jd -= b;
+  b = Math.round(jd * 8);
+  if (b >= 8) b = 0;
+  return { phase: b, name: Moon.phases[b], image: Moon.phaseImgs[b] };
+}
+
 async function getWeather() {
   var location = await Location.current();
   var lat = location.latitude;
   var lon = location.longitude;
-  var API_KEY = "put your api key here";
+  var API_KEY = "place your api key here";
   var weatherData = await new Request(
     "https://api.openweathermap.org/data/2.5/weather?lat=" +
       lat +
