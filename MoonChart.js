@@ -15,7 +15,7 @@ Script.complete();
 
 async function buildInterface() {
   var weatherData = await getWeather();
-  bgImage = await getImage(baseUrl + "/imgs/clear.png");
+  bgImage = await getImage(baseUrl + "/imgs/Clear.png");
   let bg = bgImage;
   let context = new DrawContext();
 
